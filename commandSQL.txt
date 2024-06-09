@@ -1,0 +1,179 @@
+-- Создадим базу данных
+CREATE DATABASE human_friends;
+USE human_friends;
+
+-- Создадим таблицы и наполним их
+DROP TABLE IF EXISTS human_friends;
+CREATE TABLE human_friends
+(
+	Id INT AUTO_INCREMENT PRIMARY KEY, 
+	Class_type VARCHAR(20)
+);
+
+INSERT INTO human_friends (Class_type)
+VALUES ('Pets'), ('Pack animals');
+
+-- SELECT * FROM human_friends;
+
+DROP TABLE IF EXISTS pets;
+CREATE TABLE pets
+(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	Type_animal VARCHAR (25) NOT NULL,
+	Class_id INT, FOREIGN KEY (Class_id) REFERENCES human_friends (Id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO pets (Type_animal, Class_id)
+VALUES ('Cats', 1), ('Dogs', 1), ('Hamsters', 1); 
+
+-- SELECT * FROM pets;
+
+DROP TABLE IF EXISTS pack_animals;
+CREATE TABLE pack_animals
+(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	Type_animal VARCHAR (25) NOT NULL,
+	Class_id INT, FOREIGN KEY (Class_id) REFERENCES human_friends (Id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO pack_animals (Type_animal, Class_id)
+VALUES ('Horses', 2), ('Camels', 2), ('Donkeys', 2); 
+
+-- SELECT * FROM pack_animals;
+
+DROP TABLE IF EXISTS cats;
+CREATE TABLE cats 
+(       
+    Id INT AUTO_INCREMENT PRIMARY KEY, 
+    Name VARCHAR(25) NOT NULL, 
+    Birth_date DATE,
+    Commands VARCHAR(250),
+    Type_id INT, FOREIGN KEY (Type_id) REFERENCES pets (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO cats (Name, Birth_date, Commands, Type_id)
+VALUES ('Whiskers', '2019-05-15', 'Sit, Pounce', 1),
+('Smudge', '2020-02-20', 'Sit, Pounce, Scratch', 1),  
+('Oliver', '2020-06-30', 'Meow, Scratch, Jump', 1); 
+
+SELECT Name, Birth_date, Commands, pets.Type_animal FROM cats
+JOIN pets ON cats.Type_id = pets.id;
+
+DROP TABLE IF EXISTS dogs;
+CREATE TABLE dogs 
+(       
+    Id INT AUTO_INCREMENT PRIMARY KEY, 
+    Name VARCHAR(25) NOT NULL, 
+    Birth_date DATE,
+    Commands VARCHAR(250),
+    Type_id INT, FOREIGN KEY (Type_id) REFERENCES pets (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO dogs (Name, Birth_date, Commands, Type_id)
+VALUES ('Fido', '2020-01-01', 'Sit, Stay, Fetch', 2),
+('Buddy', '2018-12-10', 'Sit, Paw, Bark', 2),  
+('Bella', '2019-11-11', 'Sit, Stay, Roll', 2); 
+
+SELECT Name, Birth_date, Commands, pets.Type_animal FROM dogs
+JOIN pets ON dogs.Type_id = pets.id;
+
+DROP TABLE IF EXISTS hamsters;
+CREATE TABLE hamsters 
+(       
+    Id INT AUTO_INCREMENT PRIMARY KEY, 
+    Name VARCHAR(25) NOT NULL, 
+    Birth_date DATE,
+    Commands VARCHAR(250),
+    Type_id INT, FOREIGN KEY (Type_id) REFERENCES pets (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO hamsters (Name, Birth_date, Commands, Type_id)
+VALUES ('Hammy', '2023-03-10', 'Roll, Hide', 3),
+('Peanut', '2023-08-01', 'Roll, Spin', 3); 
+
+SELECT Name, Birth_date, Commands, pets.Type_animal FROM hamsters
+JOIN pets ON hamsters.Type_id = pets.id;
+
+
+DROP TABLE IF EXISTS horses;
+CREATE TABLE horses 
+(       
+    Id INT AUTO_INCREMENT PRIMARY KEY, 
+    Name VARCHAR(25) NOT NULL, 
+    Birth_date DATE,
+    Commands VARCHAR(250),
+    Type_id INT, FOREIGN KEY (Type_id) REFERENCES pack_animals (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO horses (Name, Birth_date, Commands, Type_id)
+VALUES ('Thunder', '2022-05-15', 'Trot, Canter, Gallop', 1),
+('Storm', '2014-02-20', 'Trot, Canter', 1),  
+('Blaze', '2016-02-29', 'Trot, Jump, Gallop', 1); 
+
+SELECT Name, Birth_date, Commands, pack_animals.Type_animal FROM horses
+JOIN pack_animals ON horses.Type_id = pack_animals.id;
+
+
+DROP TABLE IF EXISTS camels;
+CREATE TABLE camels
+(       
+    Id INT AUTO_INCREMENT PRIMARY KEY, 
+    Name VARCHAR(25) NOT NULL, 
+    Birth_date DATE,
+    Commands VARCHAR(250),
+    Type_id INT, FOREIGN KEY (Type_id) REFERENCES pack_animals (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO camels (Name, Birth_date, Commands, Type_id)
+VALUES ('Sandy', '2016-11-03', 'Walk, Carry Load', 2),
+('Dune', '2023-02-20', 'Walk, Sit', 2),  
+('Sahara', '2015-08-14', 'Walk, Run', 2); 
+
+SELECT Name, Birth_date, Commands, pack_animals.Type_animal FROM camels
+JOIN pack_animals ON camels.Type_id = pack_animals.id;
+
+
+DROP TABLE IF EXISTS donkeys;
+CREATE TABLE donkeys
+(       
+    Id INT AUTO_INCREMENT PRIMARY KEY, 
+    Name VARCHAR(25) NOT NULL, 
+    Birth_date DATE,
+    Commands VARCHAR(250),
+    Type_id INT, FOREIGN KEY (Type_id) REFERENCES pack_animals (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO donkeys (Name, Birth_date, Commands, Type_id)
+VALUES ('Eeyore', '2023-11-03', 'Walk, Carry Load, Bray', 3),
+('Burro', '2015-08-14', 'Walk, Bray, Kick', 3); 
+
+SELECT Name, Birth_date, Commands, pack_animals.Type_animal FROM donkeys
+JOIN pack_animals ON donkeys.Type_id = pack_animals.id;
+
+DELETE FROM camels
+WHERE Type_id = 2;
+
+-- SELECT Name, Birth_date, Commands FROM camels;
+
+SELECT Name, Birth_date, Commands FROM horses
+UNION ALL SELECT  Name, Birth_date, Commands FROM donkeys;
+
+WITH all_animals AS (
+	SELECT *, 'Horses' AS Type_animal FROM horses 
+    UNION ALL SELECT *, 'Donkeys' AS Type_animal FROM donkeys 
+    UNION ALL SELECT *, 'Hamsters' AS Type_animal FROM hamsters
+    UNION ALL SELECT *, 'Dogs' AS Type_animal FROM dogs
+    UNION ALL SELECT *, 'Cats' AS Type_animal FROM cats
+)
+SELECT Name, Birth_date, Commands, Type_animal, TIMESTAMPDIFF(MONTH, Birth_date, CURDATE()) AS Age_in_month
+FROM all_animals WHERE Birth_date BETWEEN ADDDATE(curdate(), INTERVAL -3 YEAR) AND ADDDATE(CURDATE(), INTERVAL -1 YEAR);
+ 
+ 
+CREATE TABLE all_animal AS
+SELECT *, 'Horses' AS Type_animal FROM horses 
+UNION ALL SELECT *, 'Donkeys' AS Type_animal FROM donkeys 
+UNION ALL SELECT *, 'Hamsters' AS Type_animal FROM hamsters
+UNION ALL SELECT *, 'Dogs' AS Type_animal FROM dogs
+UNION ALL SELECT *, 'Cats' AS Type_animal FROM cats;
+
+SELECT * FROM all_animal;
